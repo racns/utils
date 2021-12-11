@@ -159,7 +159,19 @@ class helper{
         this.to = { scroll:toScroll }
     
 
+
     
+    
+    
+        /* 定义 fetch 方法 */
+        const fetchGet    = (url,params,config) => this.fetchGet(url,params,config)
+        const fetchPut    = (url,params,config) => this.fetchPut(url,params,config)
+        const fetchPost   = (url,params,config) => this.fetchPost(url,params,config)
+        const fetchPatch  = (url,params,config) => this.fetchPatch(url,params,config)
+        const fetchDelete = (url,params,config) => this.fetchDelete(url,params,config)
+        
+        // 链式操作 to 属性
+        this.fetch = { get:fetchGet, put:fetchPut, post:fetchPost, patch:fetchPatch, delete:fetchDelete }
     }
 
     /**
@@ -1313,8 +1325,8 @@ class helper{
      */
     setCopyText(text = '', remark = '')
     {
-        let result  = false
-        const textarea = document.createElement("textarea");
+        let result     = false
+        let textarea   = document.createElement("textarea");
         textarea.value = text
         document.body.appendChild(textarea);
         
@@ -1630,6 +1642,134 @@ class helper{
         return result
     }
     
+    /**
+     *
+     * @name   网络请求 - GET
+     * @param  {Object} params [参数]
+     * @param  {Object} config [配置]
+     * @return {Object}
+     */
+    async fetchGet(url, params = {}, config = {})
+    {
+        const response = await fetch(url + '?' + this.stringfy(params), config);
+        return await response.json();
+    }
+    
+    /**
+     *
+     * @name   网络请求 - POST
+     * @param  {Object} params [参数]
+     * @param  {Object} config [配置]
+     * @return {Object}
+     */
+    async fetchPost(url, params = {}, config = {})
+    {
+        // 默认配置
+        const opt = {
+            method:'POST',
+            headers:{
+                "Content-Type":'application/json'
+            },
+            body:JSON.stringify(params)
+        }
+        
+        // 合并配置
+        if (!this.isEmpty(config)) for (let item in config) {
+            if (item == 'headers') opt[item] = {...opt[item], ...config[item]}
+            else opt[item] = config[item]
+        }
+        
+        const response = await fetch(url, opt)
+        
+        return await response.json();
+    }
+    
+    /**
+     *
+     * @name   网络请求 - PUT
+     * @param  {Object} params [参数]
+     * @param  {Object} config [配置]
+     * @return {Object}
+     */
+    async fetchPut(url, params = {}, config = {})
+    {
+        // 默认配置
+        const opt = {
+            method:'PUT',
+            headers:{
+                "Content-Type":'application/json'
+            },
+            body:JSON.stringify(params)
+        }
+        
+        // 合并配置
+        if (!this.isEmpty(config)) for (let item in config) {
+            if (item == 'headers') opt[item] = {...opt[item], ...config[item]}
+            else opt[item] = config[item]
+        }
+        
+        const response = await fetch(url, opt)
+        
+        return await response.json();
+    }
+    
+    /**
+     *
+     * @name   网络请求 - DEL
+     * @param  {Object} params [参数]
+     * @param  {Object} config [配置]
+     * @return {Object}
+     */
+    async fetchDelete(url, params = {}, config = {})
+    {
+        // 默认配置
+        const opt = {
+            method:'DELETE',
+            headers:{
+                "Content-Type":'application/json'
+            },
+            body:JSON.stringify(params)
+        }
+        
+        // 合并配置
+        if (!this.isEmpty(config)) for (let item in config) {
+            if (item == 'headers') opt[item] = {...opt[item], ...config[item]}
+            else opt[item] = config[item]
+        }
+        
+        const response = await fetch(url, opt)
+        
+        return await response.json();
+    }
+    
+    /**
+     *
+     * @name   网络请求 - PATCH
+     * @param  {Object} params [参数]
+     * @param  {Object} config [配置]
+     * @return {Object}
+     */
+    async fetchPatch(url, params = {}, config = {})
+    {
+        // 默认配置
+        const opt = {
+            method:'PATCH',
+            headers:{
+                "Content-Type":'application/json'
+            },
+            body:JSON.stringify(params)
+        }
+        
+        // 合并配置
+        if (!this.isEmpty(config)) for (let item in config) {
+            if (item == 'headers') opt[item] = {...opt[item], ...config[item]}
+            else opt[item] = config[item]
+        }
+        
+        const response = await fetch(url, opt)
+        
+        return await response.json();
+    }
 
 
 
