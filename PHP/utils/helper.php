@@ -74,7 +74,9 @@ class helper
      */
     function CheckDomain(string $url = null)
     {
-        $str = "/^http(s?):\/\/(?:[A-za-z0-9-]+\.)+[A-za-z]{2,4}(?:[\/\?#][\/=\?%\-&~`@[\]\':+!\.#\w]*)?$/";
+        $url = str_replace(['https:','http:','//'], '', $url);
+        
+        $str = "/^(?:[A-za-z0-9-]+\.)+[A-za-z]{2,5}(?:[\/\?#][\/=\?%\-&~`@[\]\':+!\.#\w]*)?$/";
         
         if (!preg_match($str,$url)) $check = false;
         else $check = true;
@@ -108,12 +110,10 @@ class helper
      */
     function GetTopDomain(string $url = null)
     {
-        $hosts = parse_url(strtolower($url));
-        
-        $host = $hosts['host'];
+        $url = $this->ExtractDomain($url);
         
         // 查看是几级域名
-        $data = explode('.', $host);
+        $data = explode('.', $url);
         
         $n = count($data);
         
@@ -121,11 +121,40 @@ class helper
         $preg = '/[\w].+\.(com|net|org|gov|edu)\.cn$/';
         
         // 双后缀取后3位
-        if(($n > 2) && preg_match($preg,$host)) $host = $data[$n-3].'.'.$data[$n-2].'.'.$data[$n-1];
+        if (($n > 2) && preg_match($preg, $url)) $url = $data[$n-3] . '.' . $data[$n-2] . '.' . $data[$n-1];
         // 非双后缀取后两位
-        else $host = $data[$n-2].'.'.$data[$n-1];
+        else $url = $data[$n-2] . '.' . $data[$n-1];
         
-        return $host;
+        return $url;
+    }
+    
+    /**
+    * 提取域名
+    * @param string|null $url
+    * @return domain
+    */
+    function ExtractDomain($url = null)
+    {
+        $url    = 'https://' . str_replace(['https://','http://','//'], '', $url);
+        $result = $url;
+        
+        $url = parse_url($url);
+        if (!isset($url['host'])) $result = null;
+        $main_url = $url['host'];
+        
+        if(!strcmp(long2ip(sprintf('%u', ip2long($main_url))), $main_url)) $result = $main_url;
+        else {
+            $array  = explode('.', $main_url);
+            $count  = count($array);
+            // com.cn net.cn 等情况
+            $endArr = ['com', 'net', 'org'];
+            if (in_array($array[$count - 2], $endArr)) {
+            	$result = $array[$count - 3] . '.' . $array[$count - 2] . '.' . $array[$count - 1];
+            } else {
+            	$result = $array[$count - 2] . '.' . $array[$count - 1];
+            }
+        }
+        return $result;
     }
 
     /**
@@ -205,6 +234,10 @@ class helper
         }
         if (preg_match('/MicroMessenger\/([^\s]+)/i', $agent, $regs)) {
             $browser = '微信浏览器';
+            $browser_ver = $regs[1];
+        }
+        if (preg_match('/CriOS\/([^\s]+)/i', $agent, $regs)) {
+            $browser = 'CriOS';
             $browser_ver = $regs[1];
         }
 
@@ -424,7 +457,7 @@ class helper
     function domain()
     {
         $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
-        $domain = $_SERVER['HTTP_HOST'];
+        $domain = &$_SERVER['HTTP_HOST'];
         
         return $http_type.$domain;
     }
@@ -596,11 +629,11 @@ class helper
     // GET请求
     public function get(string $url, array $params = [], array $headers = [])
     {
-        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json'];
+        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json','origin'=>str_replace(['https','http',':','//'], '', $this->domain())];
         $params  = !empty($params)  ? http_build_query($params) : json_encode($params);
         $headers = !empty($headers) ? array_merge($header, $headers) : $header;
         
-        foreach ($headers as $key => $val) $_headers[] = $key.':'.$val;
+        foreach ($headers as $key => $val) $_headers[] = $key . ':' . $val;
         
         $curl   = curl_init();
         
@@ -624,11 +657,11 @@ class helper
     // POST请求
     public function post(string $url, array $params = [], array $headers = [])
     {
-        $header  = ['Content-type'=>'application/json;charset="utf-8"','Accept'=>'application/json'];
+        $header  = ['Content-type'=>'application/json;charset="utf-8"','Accept'=>'application/json','origin'=>str_replace(['https','http',':','//'], '', $this->domain())];
         $params  = json_encode($params);
         $headers = !empty($headers) ? array_merge($header, $headers) : $header;
         
-        foreach ($headers as $key => $val) $_headers[] = $key.':'.$val;
+        foreach ($headers as $key => $val) $_headers[] = $key . ':' . $val;
         
         $curl   = curl_init();
         
@@ -650,11 +683,11 @@ class helper
     // PUT请求
     public function put(string $url, array $params = [], array $headers = [])
     {
-        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json'];
+        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json','origin'=>str_replace(['https','http',':','//'], '', $this->domain())];
         $params  = json_encode($params);
         $headers = !empty($headers) ? array_merge($header, $headers) : $header;
         
-        foreach ($headers as $key => $val) $_headers[] = $key.':'.$val;
+        foreach ($headers as $key => $val) $_headers[] = $key . ':' . $val;
         
         $curl   = curl_init();
         
@@ -678,11 +711,11 @@ class helper
     // DELETE请求
     public function del(string $url, array $params = [], array $headers = [])
     {
-        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json'];
+        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json','origin'=>str_replace(['https','http',':','//'], '', $this->domain())];
         $params  = json_encode($params);
         $headers = !empty($headers) ? array_merge($header, $headers) : $header;
         
-        foreach ($headers as $key => $val) $_headers[] = $key.':'.$val;
+        foreach ($headers as $key => $val) $_headers[] = $key . ':' . $val;
         
         $curl   = curl_init();
         
@@ -702,11 +735,11 @@ class helper
     // PATCH请求
     public function patch(string $url, array $params = [], array $headers = [])
     {
-        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json'];
+        $header  = ['Content-type'=>'application/json;','Accept'=>'application/json','origin'=>str_replace(['https','http',':','//'], '', $this->domain())];
         $params  = json_encode($params);
         $headers = !empty($headers) ? array_merge($header, $headers) : $header;
         
-        foreach ($headers as $key => $val) $_headers[] = $key.':'.$val;
+        foreach ($headers as $key => $val) $_headers[] = $key . ':' . $val;
         
         $curl   = curl_init();
         
@@ -761,6 +794,45 @@ class helper
             }
         }
         return $result;
+    }
+    
+    // 数组键名转大写
+    public function ArrayKeysToUpper(&$array, $case = CASE_LOWER, $flag = false)
+    {
+        $array = array_change_key_case($array, $case);
+        if ($flag) foreach ($array as $key => $value) if (is_array($value)) $this->ArrayKeysToUpper($array[$key], $case, true);
+    }
+    
+    // 数组深度合并
+    public function array_merge_deep(...$arrays) {
+    	$result = [];
+    	while ($arrays) {
+    		$array = array_shift($arrays);
+    		if (!$array) continue;
+    		foreach ($array as $key => $val) {
+    			if (is_string($key)) {
+    				if (is_array($val) && array_key_exists($key, $result) && is_array($result[$key])) {
+    					$result[$key] = $this->array_merge_deep(...[$result[$key], $val]);
+    				} else $result[$key] = $val;
+    			} else $result[] = $val;
+    		}
+    	}
+    	return $result;
+    }
+
+    /**
+    * 判断字符串是否为 Json 格式
+    * 
+    * @param string $data Json 字符串
+    * @param bool $assoc 是否返回关联数组。默认返回对象
+    * 
+    * @return array|bool|object 成功返回转换后的对象或数组，失败返回 false
+    */
+    public function stringJson($value = '', $assoc = false)
+    {
+        $value = json_decode($value, $assoc);
+        if (($value && is_object($value)) || (is_array($value) && !empty($value))) return $value;
+        return [];
     }
     
     // END

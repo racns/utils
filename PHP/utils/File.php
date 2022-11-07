@@ -42,7 +42,7 @@ class File
         $time  = empty($time) ? time() : $time;
         $visit_time = empty($visit_time) ? time() : $visit_time;
         
-        if(file_exists($path) && $cover) $this->unlinkFile($path);
+        if (file_exists($path) && $cover) $this->unlinkFile($path);
         
         $catalog = dirname($path);
         $this->createDir($catalog);
@@ -342,17 +342,17 @@ class File
      * 改变文件和目录的相关属性
      * @param string $file 文件或路径
      * @param string $mode 操作类型
-     * @param string $ch_info 操作信息
+     * @param string $info 操作信息
      * @return boolean
      */
-    public function changeFile(string $file, string  $mode, $ch_info)
+    public function changeFile(string $file, string $mode, $info = 0755)
     {
         switch ($mode){
-            case 'group' : $is_ok = chgrp($file, $ch_info);  // 改变文件组。
+            case 'group' : $ok = chgrp($file, $info);  // 改变文件组。
                 break;
-            case 'mode'  : $is_ok = chmod($file, $ch_info);  // 改变文件模式。
+            case 'mode'  : $ok = chmod($file, $info);  // 改变文件模式。
                 break;
-            case 'ower'  : $is_ok = chown($file, $ch_info);  // 改变文件所有者。
+            case 'ower'  : $ok = chown($file, $info);  // 改变文件所有者。
                 break;
         }
     }
@@ -402,7 +402,7 @@ class File
 	    if (is_array($file_path))       $path_array   = $file_path;
 	    else if (is_string($file_path)) $path_array[] = $file_path;
 	    
-	    foreach ($path_array as $val) $result = array_merge($result,file($val));
+	    foreach ($path_array as $val) $result = array_merge($result, file($val));
 	    
 	    return $result;
 	}
@@ -420,7 +420,7 @@ class File
 	}
 	
 	// 列出目录
-	public function get_dirs($dir) 
+	public function getDir($dir) 
 	{
 		$dir = rtrim($dir,'/').'/';
 		$dirArray [][] = NULL;
@@ -447,7 +447,7 @@ class File
 	}
 	
     // 统计文件夹大小	
-	public function get_size($dir)
+	public function getSize($dir)
 	{ 
 		$dirlist = opendir($dir);
 		$dirsize = 0;
@@ -457,7 +457,7 @@ class File
 			{ 
 				if (is_dir("$dir/$folderorfile"))
 				{ 
-					$dirsize += self::get_size("$dir/$folderorfile"); 
+					$dirsize += self::getSize("$dir/$folderorfile"); 
 				}
 				else
 				{ 
@@ -470,7 +470,7 @@ class File
 	}
 	
 	// 检测是否为空文件夹
-	public function empty_dir($dir)
+	public function emptyDir($dir)
 	{
 		return (($files = @scandir($dir)) && count($files) <= 2); 
 	}
@@ -576,9 +576,8 @@ class File
     /**
      * 删除非空目录
      * 说明:只能删除非系统和特定权限的文件,否则会出现错误
-     * @param string $dir_name 目录路径
+     * @param string $dir_path 目录路径
      * @param boolean $is_all 是否删除所有
-     * @param boolean $del_dir 是否删除目录
      * @return boolean
      */
     public function removeDir(string $dir_path, bool $is_all = false)
@@ -595,6 +594,7 @@ class File
             }
         }
         closedir($handle);
+        
         return @rmdir($dir_name);
     }
     
@@ -652,16 +652,16 @@ class File
     /*
      * 保存文件方法
      */
-    public function saveFile($url, $file, $path = './', $filename = '', $cover = true)
+    public function saveFile($fileName, $text, $filePath = './', $filename = '', $cover = true)
     {
         // 是否自定义文件名
-        if (empty($filename)) $filename = pathinfo($url, PATHINFO_BASENAME);
+        if (empty($filename)) $filename = pathinfo($fileName, PATHINFO_BASENAME);
         // 是否覆盖原有内容
-        if ($cover) if (file_exists($path . $filename)) $this->unlinkFile($path . $filename);
+        if ($cover) if (file_exists($filePath . $filename)) $this->unlinkFile($filePath . $filename);
         // 打开文件
-        $resource = fopen($path . $filename, 'a');
+        $resource = fopen($filePath . $filename, 'a');
         // 写入文件
-        fwrite($resource, $file);
+        fwrite($resource, $text);
         // 关闭文件
         fclose($resource);
     }
