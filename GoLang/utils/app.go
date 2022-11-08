@@ -6,10 +6,10 @@ func init() {
 	Is.Email        = isEmail
 	Is.Phone        = isPhone
 	Is.Empty        = isEmpty
-	Is.True		    = isTrue
-	Is.False	    = isFalse
+	Is.True		= isTrue
+	Is.False	= isFalse
 	Is.Domain       = isDomain
-	Env.Toml		= envToml
+	Env.Toml	= envToml
 	Get.Type        = getType
 	In.Array        = inArray
 	Array.Filter 	= arrayFilter
