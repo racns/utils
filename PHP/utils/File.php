@@ -586,11 +586,11 @@ class File
         $handle = @opendir($dir_name);
         while (($file = @readdir($handle)) !== false){
             
-            if($file != '.' && $file != '..'){
+            if ($file != '.' && $file != '..'){
                 
                 $dir = $dir_name . '/' . $file;
-                if($is_all) is_dir($dir) ? $this->removeDir($dir) : $this->unlinkFile($dir);
-                else if(is_file($dir)) $this->unlinkFile($dir);
+                if ($is_all) is_dir($dir) ? $this->removeDir($dir) : $this->unlinkFile($dir);
+                else if (is_file($dir)) $this->unlinkFile($dir);
             }
         }
         closedir($handle);

@@ -24,7 +24,6 @@ class Is
      */
     public function true($value = null)
     {
-
         return !empty($value) ? ($value == 'true' or $value === true ? true : false) : false;
     }
 

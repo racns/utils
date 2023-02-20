@@ -305,25 +305,27 @@ class File
         $path = !empty($this->load) ? $this->load : $this->path . $this->name;
         if (!file_exists($path)) return false;
 
-        $result = [];
-        $result['name']       = basename($path);
-        $result['path']       = dirname($path);
-        $result['size']       = filesize($path);
-        $result['type']       = filetype($path);
-        $result['ext']        = pathinfo($path, PATHINFO_EXTENSION);
-        $result['ctime']      = filectime($path);
-        $result['mtime']      = filemtime($path);
-        $result['atime']      = fileatime($path);
-        $result['owner']      = fileowner($path);
-        $result['perms']      = substr(sprintf('%o', fileperms($path)), -4);
-        $result['isDir']      = is_dir($path);
-        $result['isFile']     = is_file($path);
-        $result['isLink']     = is_link($path);
-        $result['isReadable'] = is_readable($path);
-        $result['isWritable'] = is_writable($path);
-        $result['isUpload']   = is_uploaded_file($path);
-        // 上传大小限制
-        $result['maxSize']    = ini_get('upload_max_filesize');
+        $result = [
+            'name'       => basename($path),
+            'path'       => dirname($path),
+            'size'       => filesize($path),
+            'type'       => filetype($path),
+            'ext'        => pathinfo($path, PATHINFO_EXTENSION),
+            'isDir'      => is_dir($path),
+            'isFile'     => is_file($path),
+            'isLink'     => is_link($path),
+            'isReadable' => is_readable($path),
+            'isWritable' => is_writable($path),
+            'isUpload'   => is_uploaded_file($path),
+            'atime'      => fileatime($path),
+            'ctime'      => filectime($path),
+            'mtime'      => filemtime($path),
+            'inode'      => fileinode($path),
+            'group'      => filegroup($path),
+            'owner'      => fileowner($path),
+            'perms'      => substr(sprintf('%o', fileperms($path)), -4),
+            'maxSize'    => ini_get('upload_max_filesize'),
+        ];
 
         return $result;
     }

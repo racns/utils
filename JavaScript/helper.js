@@ -1628,23 +1628,30 @@ class helper{
      */
     setCopyText(text = '', remark = '')
     {
-        let result     = false
-        let textarea   = document.createElement("textarea");
-        textarea.value = text
-        document.body.appendChild(textarea);
+        try {
+            navigator.clipboard.writeText(text + remark)
+            return true
+        } catch (error) {
+            return false
+        }
 
-        textarea.select();
+        let result     = false
+        let textarea   = document.createElement("textarea")
+        textarea.value = text
+        document.body.appendChild(textarea)
+
+        textarea.select()
 
         // 为textarea添加监听事件方便对剪贴板内容进行二次修改
         if (!this.isEmpty(remark)) textarea.addEventListener("copy", (event)=>{
-            let clipboardData = event.clipboardData || window.clipboardData;
-            if (!clipboardData) return;
-            let text = window.getSelection().toString();
+            let clipboardData = event.clipboardData || window.clipboardData
+            if (!clipboardData) return
+            let text = window.getSelection().toString()
             if (text) {
                 event.preventDefault();
-                clipboardData.setData("text/plain", text + remark);
+                clipboardData.setData("text/plain", text + remark)
             }
-        });
+        })
 
         // 执行复制操作
         if (document.execCommand("copy")) result = true
@@ -1653,9 +1660,9 @@ class helper{
         // document.execCommand('copy') // 前先进行document.execCommand('selectAll')选中所有内容即可
 
         // 移除input框
-        document.body.removeChild(textarea);
+        document.body.removeChild(textarea)
 
-        return result;
+        return result
     }
 
     /*
@@ -2259,9 +2266,9 @@ class helper{
         return tree
     }
 
-
-
     // END
 }
 
-const inisHelper = new helper
+const utils = new helper
+
+export default utils

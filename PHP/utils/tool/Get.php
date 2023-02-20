@@ -93,15 +93,56 @@ class Get
 
     /**
      * 生成唯一的GUID
-     * @param string|null $prefix 前缀
-     * @return string 返回唯一的GUID
+     * @param  string|null  $prefix 前缀
+     * @param  int          $length 长度
+     * @param  suffix|null  $suffix 后缀
+     * @return string       返回唯一的GUID
      */
-    public function guid($prefix = '')
+    public function guid(string $prefix = '', int $length = 12, string $suffix = '', string $chars = null)
+    {   
+        $uuid  = '';
+        if (empty($chars)) {
+            $chars = md5(uniqid(mt_rand(), true));
+            for ($i = 0; $i < $length / 4; $i++) {
+                $uuid .= substr($chars, $i * 4, 4);
+            }
+        }
+        else {
+            // 从 $chars 中随机取 $length 个字符
+            $chars = str_shuffle($chars);
+            $uuid  = substr($chars, 0, $length);
+        }
+        return strtoupper($prefix . substr($uuid, 0, $length) . $suffix);
+    }
+
+    /**
+     * 获取分隔符之前的数据
+     * @param string $value 数据
+     * @param string $parting 分隔符
+     * @return string 返回结果
+     */
+    public function before(string $value = '', string $parting = '?')
     {
-        $chars = md5(uniqid(mt_rand(), true));
-        $uuid  = substr($chars, 0, 8);
-        $uuid .= substr($chars, 8, 4);
-        return strtoupper($prefix . $uuid);
+        $result = $value;
+        if (strpos($value, $parting) !== false) {
+            $result = substr($value, 0, strpos($value, $parting));
+        }
+        return $result;
+    }
+
+    /**
+     * 获取分隔符之后的数据
+     * @param string $value 数据
+     * @param string $parting 分隔符
+     * @return string 返回结果
+     */
+    public function after(string $value = '', string $parting = '?')
+    {
+        $result = $value;
+        if (strpos($value, $parting) !== false) {
+            $result = substr($value, strpos($value, $parting) + strlen($parting));
+        }
+        return $result;
     }
 
     // 调用不存在的方法时触发
