@@ -94,15 +94,17 @@ func typeof(args ...any) (typeof string, empty bool) {
 			if item == nil {
 				empty = true
 			}
-		//case "bool":
-		//	typeof = "bool"
-		//	if item == false {
-		//		empty = true
-		//	}
 		default:
-			typeof = "other"
-			empty = true
-			fmt.Println("奇怪的数据类型")
+			if item == "true" || item == "false" || item == true || item == false {
+				typeof = "bool"
+				if item == false {
+					empty = true
+				}
+			} else {
+				typeof = "other"
+				empty = true
+				fmt.Println("奇怪的数据类型")
+			}
 		}
 
 	}
@@ -110,11 +112,11 @@ func typeof(args ...any) (typeof string, empty bool) {
 }
 
 func CustomProcessApi(url string, api string) (result string) {
-	if empty := isEmpty(api); empty {
+	if empty := IsEmpty(api); empty {
 		api = "api"
 	}
 	result = url
-	if empty := isEmpty(url) ; !empty {
+	if empty := IsEmpty(url); !empty {
 		prefix := "//"
 		if check := strings.HasPrefix(url, "https://"); check {
 			prefix = "https://"
@@ -123,7 +125,7 @@ func CustomProcessApi(url string, api string) (result string) {
 		}
 		// 正则匹配 http(s):// - 并去除
 		url = regexp.MustCompile("^((https|http)?:\\/\\/)").ReplaceAllString(url, "")
-		array := arrayFilter(strings.Split(url, `/`))
+		array := ArrayFilter(strings.Split(url, `/`))
 		if len(array) == 1 {
 			result = prefix + array[0] + "/" + api + "/"
 		} else if len(array) == 2 {
@@ -135,7 +137,7 @@ func CustomProcessApi(url string, api string) (result string) {
 
 // InMapKey
 // 在 map key 中
-func InMapKey(key string, array map[string]string) bool {
+func InMapKey(key string, array map[string]any) bool {
 	for k := range array {
 		if key == k {
 			return true

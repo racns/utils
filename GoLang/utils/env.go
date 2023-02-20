@@ -6,12 +6,13 @@ import (
 	"strings"
 )
 
-func envToml(value ...string) any {
+// EnvToml - 读取配置文件
+func EnvToml(args ...string) (result any) {
 
 	key, def, path := "app", "", "./config/app.toml"
 
-	if len(value) > 0 {
-		for k, v := range value {
+	if len(args) > 0 {
+		for k, v := range args {
 			if k == 0 {
 				key = v
 			} else if k == 1 {
@@ -45,12 +46,12 @@ func envToml(value ...string) any {
 
 	} else {
 
-		result := viper.GetStringMap(keys[0])[keys[1]]
+		result = viper.GetStringMap(keys[0])[keys[1]]
 
 		if empty := Is.Empty(result); empty {
 			return def
 		}
 
-		return result
+		return
 	}
 }

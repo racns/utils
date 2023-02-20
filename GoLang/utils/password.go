@@ -5,16 +5,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func passwordCreate(password []byte) string {
+// PasswordCreate - 创建密码
+func PasswordCreate(password any) (result string) {
 
-	result, _ := bcrypt.GenerateFromPassword(password, bcrypt.MinCost)
+	item, _ := bcrypt.GenerateFromPassword([]byte(password.(string)), bcrypt.MinCost)
 
-	return string(result)
+	return string(item)
 }
 
-// passwordVerify 验证密码
-func passwordVerify(encode any, password []byte) bool {
-	if err := bcrypt.CompareHashAndPassword([]byte(cast.ToString(encode)), password); err != nil {
+// PasswordVerify - 验证密码
+func PasswordVerify(encode any, password any) (ok bool) {
+	if err := bcrypt.CompareHashAndPassword([]byte(cast.ToString(encode)), []byte(password.(string))); err != nil {
 		return false
 	}
 	return true
